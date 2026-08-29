@@ -863,10 +863,10 @@ class Component extends DCLogic {
   }
 }
 </script>
-  <script type="module">
+    <script type="module">
     import { initializeApp } from "https://gstatic.com";
     import { getAnalytics } from "https://gstatic.com";
-    import { getAuth, signInWithEmailAndPassword } from "https://gstatic.com";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://gstatic.com";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA_Or5DNQh0zCg9hLhntgDLw32LcCEnPM0",
@@ -882,15 +882,29 @@ class Component extends DCLogic {
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
 
+    // Global Login Action
     window.processFirebaseLogin = async (email, password) => {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         console.log("Logged into Firebase successfully!", userCredential.user);
-        alert("Success! Authenticated profile ID: " + userCredential.user.uid);
+        alert("Success! Logged in with ID: " + userCredential.user.uid);
         return userCredential.user;
       } catch (error) {
         console.error("Firebase Login Error:", error.message);
         alert("Authentication Failed: " + error.message);
+      }
+    };
+
+    // Global Sign Up Action (Use this if the email doesn't exist yet)
+    window.processFirebaseSignUp = async (email, password) => {
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        console.log("Created Firebase user successfully!", userCredential.user);
+        alert("Account created! Registered ID: " + userCredential.user.uid);
+        return userCredential.user;
+      } catch (error) {
+        console.error("Firebase Sign-Up Error:", error.message);
+        alert("Sign-Up Failed: " + error.message);
       }
     };
   </script>
