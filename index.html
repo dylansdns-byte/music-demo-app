@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #08080A; }
+  a { color: #C9A227; text-decoration: none; }
+  a:hover { color: #E3BC45; }
+  input[type=range] { -webkit-appearance: none; appearance: none; background: transparent; }
+  input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 99px; background: rgba(255,255,255,0.13); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -6px; border-radius: 99px; background: #F2EFE8; box-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#08080A;display:flex;flex-direction:column;align-items:center;gap:22px;padding:44px 24px 60px;box-sizing:border-box;font-family:'Outfit',system-ui,sans-serif">
+
+  <div style="display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center">
+    <div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.22em;text-transform:uppercase;color:var(--ac,#C9A227)">Crossfade</div>
+    <div style="font:400 14px/1.5 'Outfit',sans-serif;color:#7E786E">Cross-service playlists, played on anything. Tap around — the flows are live.</div>
+  </div>
+
+  <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+
+    <div style="height:100%;display:flex;flex-direction:column;background:#0C0B0A;color:#F2EFE8;font-family:'Outfit',system-ui,sans-serif;position:relative;overflow:hidden">
+
+      <div style="flex:1;overflow:auto">
+
+        <!-- ── HOME ─────────────────────────────────────────── -->
+        <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:64px 20px 24px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:26px">
+              <div>
+                <div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.2em;text-transform:uppercase;color:#8B8478;margin-bottom:8px">Wednesday evening</div>
+                <div style="font:600 30px/1.1 'Outfit',sans-serif;letter-spacing:-0.5px">Evening, Alex</div>
+              </div>
+              <div onClick="{{ goServices }}" style="cursor:pointer;width:38px;height:38px;border-radius:99px;background:#221F1A;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;font:500 13px 'DM Mono',monospace;color:#B5AE9F" style-hover="border-color:rgba(201,162,39,0.55)">AL</div>
+            </div>
+
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px">
+              <div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#8B8478">Linked services</div>
+              <div onClick="{{ goServices }}" style="font:400 12px 'Outfit',sans-serif;color:var(--ac,#C9A227);cursor:pointer">Manage</div>
+            </div>
+            <div style="display:flex;gap:8px;overflow:auto;padding-bottom:4px;margin:0 -20px 28px;padding-left:20px;padding-right:20px">
+              <sc-for list="{{ services }}" as="s" hint-placeholder-count="6">
+                <div onClick="{{ s.tap }}" style="cursor:pointer;flex:0 0 auto;display:flex;align-items:center;gap:9px;padding:9px 14px 9px 9px;border-radius:99px;background:#16150F;border:1px solid {{ s.border }}" style-hover="border-color:rgba(201,162,39,0.55)">
+                  <div style="width:26px;height:26px;border-radius:99px;background:#242119;display:flex;align-items:center;justify-content:center;font:500 12px 'DM Mono',monospace;color:{{ s.monoColor }}">{{ s.mono }}</div>
+                  <div>
+                    <div style="font:500 13px/1.2 'Outfit',sans-serif;white-space:nowrap">{{ s.name }}</div>
+                    <div style="font:400 10px/1.3 'DM Mono',monospace;color:{{ s.monoColor }};white-space:nowrap">{{ s.status }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px">
+              <div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#8B8478">Your crossfades</div>
+              <div onClick="{{ goLibrary }}" style="font:400 12px 'Outfit',sans-serif;color:var(--ac,#C9A227);cursor:pointer">All</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px">
+              <sc-for list="{{ homePlaylists }}" as="p" hint-placeholder-count="4">
+                <div onClick="{{ p.open }}" style="cursor:pointer;border-radius:14px;overflow:hidden;background:#16150F;border:1px solid rgba(255,255,255,0.07)" style-hover="border-color:rgba(201,162,39,0.45)">
+                  <div style="height:104px;background:{{ p.art }}"></div>
+                  <div style="padding:11px 12px 13px">
+                    <div style="font:500 14px/1.25 'Outfit',sans-serif;margin-bottom:5px">{{ p.name }}</div>
+                    <div style="font:400 10px/1.3 'DM Mono',monospace;color:#8B8478">{{ p.meta }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#8B8478;margin-bottom:12px">Playing in</div>
+            <div onClick="{{ goDevices }}" style="cursor:pointer;border-radius:14px;background:#16150F;border:1px solid rgba(255,255,255,0.07);padding:16px;display:flex;flex-direction:column;gap:14px" style-hover="border-color:rgba(201,162,39,0.45)">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:8px;height:8px;border-radius:99px;background:var(--ac,#C9A227)"></div>
+                  <div style="font:500 16px/1.2 'Outfit',sans-serif">{{ outputLabel }}</div>
+                </div>
+                <div style="font:400 11px 'DM Mono',monospace;color:#8B8478">{{ outputGear }}</div>
+              </div>
+              <div style="height:1px;background:rgba(255,255,255,0.07)"></div>
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="font:400 13px/1.3 'Outfit',sans-serif;color:#B5AE9F">{{ nowTitle }} — {{ nowArtist }}</div>
+                <div style="font:400 10px 'DM Mono',monospace;color:var(--ac,#C9A227)">{{ nowSource }}</div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ── SEARCH ───────────────────────────────────────── -->
+        <sc-if value="{{ isSearch }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:64px 20px 24px">
+            <div style="font:600 28px/1.1 'Outfit',sans-serif;letter-spacing:-0.4px;margin-bottom:18px">Search</div>
+            <div style="display:flex;align-items:center;gap:10px;background:#16150F;border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:0 14px;height:46px;margin-bottom:12px">
+              <svg width="15" height="15" viewBox="0 0 15 15"><circle cx="6" cy="6" r="5" fill="none" stroke="#8B8478" stroke-width="1.6"/><line x1="9.8" y1="9.8" x2="14" y2="14" stroke="#8B8478" stroke-width="1.6" stroke-linecap="round"/></svg>
+              <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Songs, artists, anything" style="flex:1;background:transparent;border:none;outline:none;color:#F2EFE8;font:400 15px 'Outfit',sans-serif" />
+            </div>
+            <div style="font:400 11px/1.4 'DM Mono',monospace;color:#6F6A61;margin-bottom:22px">One result per song. Sources resolved at play time.</div>
+
+            <sc-if value="{{ noQuery }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#8B8478;margin-bottom:12px">Identified nearby</div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:26px">
+                  <sc-for list="{{ identified }}" as="t" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;background:#16150F;border:1px solid rgba(255,255,255,0.07)">
+                      <div style="width:44px;height:44px;border-radius:8px;flex:0 0 auto;background:{{ t.art }}"></div>
+                      <div style="flex:1;min-width:0">
+                        <div style="font:500 14px/1.25 'Outfit',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</div>
+                        <div style="font:400 11px/1.4 'DM Mono',monospace;color:#8B8478">{{ t.artist }} · {{ t.when }}</div>
+                      </div>
+                      <div onClick="{{ t.add }}" style="cursor:pointer;width:32px;height:32px;border-radius:99px;background:#242119;display:flex;align-items:center;justify-content:center;font:400 18px 'Outfit',sans-serif;color:var(--ac,#C9A227)" style-hover="background:#2E2A20">+</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#8B8478;margin-bottom:12px">Try</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ suggestions }}" as="q" hint-placeholder-count="4">
+                    <div onClick="{{ q.pick }}" style="cursor:pointer;padding:8px 13px;border-radius:99px;background:#16150F;border:1px solid rgba(255,255,255,0.09);font:400 13px 'Outfit',sans-serif;color:#B5AE9F" style-hover="border-color:rgba(201,162,39,0.45);color:#F2EFE8">{{ q.label }}</div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#8B8478;margin-bottom:12px">{{ resultCount }}</div>
+                <sc-for list="{{ results }}" as="t" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+                    <div style="width:46px;height:46px;border-radius:8px;flex:0 0 auto;background:{{ t.art }}"></div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font:500 15px/1.25 'Outfit',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</div>
+                      <div style="display:flex;align-items:center;gap:7px;margin-top:4px">
+                        <div style="font:400 11px/1.3 'DM Mono',monospace;color:#8B8478;white-space:nowrap">{{ t.artist }}</div>
+                        <sc-if value="{{ badges }}" hint-placeholder-val="{{ true }}">
+                          <div style="display:flex;gap:4px">
+                            <sc-for list="{{ t.sources }}" as="src" hint-placeholder-count="2">
+                              <div style="width:17px;height:17px;border-radius:99px;background:#242119;display:flex;align-items:center;justify-content:center;font:500 9px 'DM Mono',monospace;color:#B5AE9F">{{ src }}</div>
+                            </sc-for>
+                          </div>
+                        </sc-if>
+                      </div>
+                      <sc-if value="{{ t.gap }}" hint-placeholder-val="{{ false }}">
+                        <div style="font:400 10px/1.4 'DM Mono',monospace;color:#D9BC63;margin-top:5px">{{ t.gap }}</div>
+                      </sc-if>
+                    </div>
+                    <div onClick="{{ t.add }}" style="cursor:pointer;width:34px;height:34px;border-radius:99px;background:#242119;display:flex;align-items:center;justify-content:center;font:400 19px 'Outfit',sans-serif;color:var(--ac,#C9A227)" style-hover="background:#2E2A20">+</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- ── LIBRARY ──────────────────────────────────────── -->
+        <sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:64px 20px 24px">
+            <div style="font:600 28px/1.1 'Outfit',sans-serif;letter-spacing:-0.4px;margin-bottom:6px">Playlists</div>
+            <div style="font:400 13px/1.5 'Outfit',sans-serif;color:#7E786E;margin-bottom:22px">Built from every service you've linked.</div>
+
+            <div onClick="{{ newPlaylist }}" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:15px;border-radius:14px;border:1px dashed rgba(201,162,39,0.45);margin-bottom:22px" style-hover="background:rgba(201,162,39,0.06)">
+              <div style="width:34px;height:34px;border-radius:99px;background:var(--ac,#C9A227);display:flex;align-items:center;justify-content:center;font:400 20px 'Outfit',sans-serif;color:#17150E">+</div>
+              <div>
+                <div style="font:500 15px/1.2 'Outfit',sans-serif">New crossfade</div>
+                <div style="font:400 11px/1.4 'DM Mono',monospace;color:#8B8478;margin-top:3px">Pull tracks from any linked service</div>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ playlists }}" as="p" hint-placeholder-count="4">
+                <div onClick="{{ p.open }}" style="cursor:pointer;display:flex;gap:13px;padding:12px;border-radius:14px;background:#16150F;border:1px solid rgba(255,255,255,0.07)" style-hover="border-color:rgba(201,162,39,0.45)">
+                  <div style="width:62px;height:62px;border-radius:9px;flex:0 0 auto;background:{{ p.art }}"></div>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:7px">
+                    <div style="font:500 15px/1.2 'Outfit',sans-serif">{{ p.name }}</div>
+                    <div style="font:400 11px/1.3 'DM Mono',monospace;color:#8B8478">{{ p.meta }}</div>
+                    <div style="display:flex;height:3px;border-radius:99px;overflow:hidden;gap:2px">
+                      <sc-for list="{{ p.mix }}" as="m" hint-placeholder-count="3">
+                        <div style="height:3px;border-radius:99px;flex:{{ m.share }};background:{{ m.color }}"></div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ── PLAYLIST DETAIL ──────────────────────────────── -->
+        <sc-if value="{{ isPlaylist }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="padding:56px 20px 20px;background:linear-gradient(180deg,#1C1A14 0%,#0C0B0A 100%)">
+              <div onClick="{{ goLibrary }}" style="cursor:pointer;width:34px;height:34px;border-radius:99px;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;margin-bottom:18px">
+                <svg width="9" height="15" viewBox="0 0 9 15"><path d="M7.5 1L1.5 7.5l6 6.5" fill="none" stroke="#F2EFE8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div style="display:flex;gap:16px;align-items:flex-end;margin-bottom:20px">
+                <div style="width:120px;height:120px;border-radius:12px;flex:0 0 auto;background:{{ detailArt }}"></div>
+                <div style="flex:1;min-width:0;padding-bottom:4px">
+                  <div style="font:600 24px/1.15 'Outfit',sans-serif;letter-spacing:-0.4px;margin-bottom:8px">Sunday Drive</div>
+                  <div style="font:400 11px/1.5 'DM Mono',monospace;color:#8B8478">14 tracks · 58 min<br>4 services</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center">
+                <div onClick="{{ playPlaylist }}" style="cursor:pointer;flex:1;height:46px;border-radius:99px;background:var(--ac,#C9A227);display:flex;align-items:center;justify-content:center;gap:9px;color:#17150E;font:600 15px 'Outfit',sans-serif" style-hover="filter:brightness(1.08)">
+                  <svg width="12" height="14" viewBox="0 0 12 14"><polygon points="0,0 12,7 0,14" fill="#17150E"/></svg>
+                  Play here
+                </div>
+                <div onClick="{{ openOutput }}" style="cursor:pointer;height:46px;padding:0 16px;border-radius:99px;background:#1F1D17;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:8px;font:400 13px 'DM Mono',monospace;color:#B5AE9F" style-hover="border-color:rgba(201,162,39,0.45)">
+                  <svg width="14" height="14" viewBox="0 0 14 14"><rect x="0.8" y="0.8" width="12.4" height="12.4" rx="2.6" fill="none" stroke="#B5AE9F" stroke-width="1.4"/><circle cx="7" cy="8.6" r="2.6" fill="none" stroke="#B5AE9F" stroke-width="1.4"/><circle cx="7" cy="3.6" r="1" fill="#B5AE9F"/></svg>
+                  {{ outputShort }}
+                </div>
+              </div>
+            </div>
+
+            <div style="padding:4px 20px 24px">
+              <sc-for list="{{ detailTracks }}" as="t" hint-placeholder-count="6">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+                  <div style="width:20px;font:400 12px 'DM Mono',monospace;color:#6F6A61;text-align:right;flex:0 0 auto">{{ t.n }}</div>
+                  <div style="width:42px;height:42px;border-radius:7px;flex:0 0 auto;background:{{ t.art }}"></div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font:500 14px/1.25 'Outfit',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</div>
+                    <div style="font:400 11px/1.4 'DM Mono',monospace;color:#8B8478;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.artist }}</div>
+                    <sc-if value="{{ t.gap }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:4px 9px;border-radius:99px;background:rgba(201,162,39,0.12);border:1px solid rgba(201,162,39,0.3)">
+                        <div style="width:5px;height:5px;border-radius:99px;background:var(--ac,#C9A227)"></div>
+                        <div style="font:400 10px/1.2 'DM Mono',monospace;color:#D9BC63">{{ t.gap }}</div>
+                      </div>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ badges }}" hint-placeholder-val="{{ true }}">
+                    <div style="width:22px;height:22px;border-radius:99px;background:#242119;display:flex;align-items:center;justify-content:center;font:500 10px 'DM Mono',monospace;color:#B5AE9F;flex:0 0 auto">{{ t.src }}</div>
+                  </sc-if>
+                  <div style="font:400 11px 'DM Mono',monospace;color:#6F6A61;flex:0 0 auto">{{ t.dur }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ── DEVICES ──────────────────────────────────────── -->
+        <sc-if value="{{ isDevices }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:64px 20px 24px">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:6px">
+              <div style="font:600 28px/1.1 'Outfit',sans-serif;letter-spacing:-0.4px">Output</div>
+              <div onClick="{{ groupAll }}" style="cursor:pointer;font:400 12px 'DM Mono',monospace;color:var(--ac,#C9A227)">Play everywhere</div>
+            </div>
+            <div style="font:400 13px/1.5 'Outfit',sans-serif;color:#7E786E;margin-bottom:22px">Rooms group together. Headphones and everything else sit below.</div>
+
+            <div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#8B8478;margin-bottom:12px">Rooms</div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px">
+              <sc-for list="{{ rooms }}" as="r" hint-placeholder-count="4">
+                <div style="border-radius:14px;background:#16150F;border:1px solid {{ r.border }};padding:15px;display:flex;flex-direction:column;gap:13px">
+                  <div style="display:flex;align-items:flex-start;gap:12px">
+                    <div onClick="{{ r.pick }}" style="cursor:pointer;width:20px;height:20px;border-radius:99px;border:1.5px solid {{ r.dotBorder }};background:{{ r.dotFill }};margin-top:2px;flex:0 0 auto"></div>
+                    <div style="flex:1;min-width:0">
+                      <div style="font:500 16px/1.2 'Outfit',sans-serif;margin-bottom:5px">{{ r.name }}</div>
+                      <div style="font:400 11px/1.4 'DM Mono',monospace;color:#8B8478">{{ r.gear }} · {{ r.now }}</div>
+                    </div>
+                    <div onClick="{{ r.toggle }}" style="cursor:pointer;padding:6px 11px;border-radius:99px;border:1px solid {{ r.chipBorder }};font:400 10px 'DM Mono',monospace;color:{{ r.chipColor }};flex:0 0 auto" style-hover="filter:brightness(1.3)">{{ r.chipLabel }}</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:11px">
+                    <svg width="13" height="13" viewBox="0 0 13 13"><polygon points="0,4.5 3.5,4.5 7,1 7,12 3.5,8.5 0,8.5" fill="#6F6A61"/></svg>
+                    <input type="range" min="0" max="100" value="{{ r.vol }}" onChange="{{ r.onVol }}" style="flex:1;height:18px" />
+                    <div style="font:400 10px 'DM Mono',monospace;color:#6F6A61;width:26px;text-align:right">{{ r.vol }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#8B8478;margin-bottom:12px">Headphones &amp; other outputs</div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <sc-for list="{{ nearby }}" as="d" hint-placeholder-count="4">
+                <div onClick="{{ d.pick }}" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 2px;border-bottom:1px solid rgba(255,255,255,0.06);opacity:{{ d.opacity }}">
+                  <div style="width:20px;height:20px;border-radius:99px;border:1.5px solid {{ d.dotBorder }};background:{{ d.dotFill }};flex:0 0 auto"></div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font:500 14px/1.2 'Outfit',sans-serif">{{ d.name }}</div>
+                    <div style="font:400 10px/1.4 'DM Mono',monospace;color:#8B8478;margin-top:3px">{{ d.kind }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="font:400 11px/1.6 'DM Mono',monospace;color:#5F5B54;margin-top:18px">AirPlay 2, Bluetooth, Chromecast, UPnP and line-out all appear here automatically.</div>
+          </div>
+        </sc-if>
+
+        <!-- ── SERVICES ─────────────────────────────────────── -->
+        <sc-if value="{{ isServices }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:64px 20px 24px">
+            <div onClick="{{ goHome }}" style="cursor:pointer;width:34px;height:34px;border-radius:99px;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;margin-bottom:18px">
+              <svg width="9" height="15" viewBox="0 0 9 15"><path d="M7.5 1L1.5 7.5l6 6.5" fill="none" stroke="#F2EFE8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div style="font:600 28px/1.1 'Outfit',sans-serif;letter-spacing:-0.4px;margin-bottom:6px">Services</div>
+            <div style="font:400 13px/1.5 'Outfit',sans-serif;color:#7E786E;margin-bottom:4px">Log in once per service. Crossfade reads your library and writes playlists back.</div>
+            <div style="font:400 11px/1.5 'DM Mono',monospace;color:var(--ac,#C9A227);margin-bottom:22px">{{ linkedSummary }}</div>
+
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ serviceRows }}" as="s" hint-placeholder-count="6">
+                <div style="display:flex;align-items:center;gap:12px;padding:13px;border-radius:13px;background:#16150F;border:1px solid rgba(255,255,255,0.07)">
+                  <div style="position:relative;width:36px;height:36px;border-radius:99px;background:#242119;display:flex;align-items:center;justify-content:center;font:500 14px 'DM Mono',monospace;color:#B5AE9F;flex:0 0 auto">
+                    {{ s.mono }}
+                    <div style="position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:99px;border:2px solid #16150F;background:{{ s.dot }}"></div>
+                  </div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font:500 15px/1.2 'Outfit',sans-serif">{{ s.name }}</div>
+                    <div style="font:400 10px/1.4 'DM Mono',monospace;color:{{ s.detailColor }};margin-top:4px">{{ s.detail }}</div>
+                  </div>
+                  <div onClick="{{ s.tap }}" style="cursor:pointer;padding:8px 15px;border-radius:99px;background:{{ s.btnBg }};border:1px solid {{ s.btnBorder }};color:{{ s.btnColor }};font:500 12px 'Outfit',sans-serif;flex:0 0 auto" style-hover="filter:brightness(1.12)">{{ s.btnLabel }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="font:400 11px/1.7 'DM Mono',monospace;color:#5F5B54;margin-top:20px">Sign-in happens on the service's own page. Crossfade stores a revocable token, never your password.</div>
+          </div>
+        </sc-if>
+
+      </div>
+
+      <!-- ── MINI PLAYER ───────────────────────────────────── -->
+      <div onClick="{{ openNowPlaying }}" style="cursor:pointer;flex:0 0 auto;margin:0 10px 6px;padding:9px 12px;border-radius:14px;background:#1B1914;border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:11px">
+        <div style="width:38px;height:38px;border-radius:7px;flex:0 0 auto;background:{{ nowArt }}"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font:500 13px/1.2 'Outfit',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ nowTitle }}</div>
+          <div style="font:400 10px/1.4 'DM Mono',monospace;color:#8B8478;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ nowArtist }} · {{ outputShort }}</div>
+        </div>
+        <div onClick="{{ togglePlay }}" style="cursor:pointer;width:34px;height:34px;border-radius:99px;background:#2A2620;display:flex;align-items:center;justify-content:center;flex:0 0 auto" style-hover="background:#332E25">
+          <sc-if value="{{ playing }}" hint-placeholder-val="{{ true }}">
+            <svg width="10" height="12" viewBox="0 0 10 12"><rect x="0" y="0" width="3.4" height="12" rx="1" fill="#F2EFE8"/><rect x="6.6" y="0" width="3.4" height="12" rx="1" fill="#F2EFE8"/></svg>
+          </sc-if>
+          <sc-if value="{{ paused }}" hint-placeholder-val="{{ false }}">
+            <svg width="11" height="12" viewBox="0 0 11 12"><polygon points="0,0 11,6 0,12" fill="#F2EFE8"/></svg>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- ── TAB BAR ───────────────────────────────────────── -->
+      <div style="flex:0 0 auto;height:76px;padding:0 8px 22px;display:flex;align-items:flex-start;border-top:1px solid rgba(255,255,255,0.07);background:#0F0E0C">
+        <div onClick="{{ goHome }}" style="flex:1;padding-top:11px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;color:{{ cHome }}">
+          <svg width="19" height="19" viewBox="0 0 19 19"><rect x="0.9" y="0.9" width="7.2" height="7.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="10.9" y="0.9" width="7.2" height="7.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="0.9" y="10.9" width="7.2" height="7.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="10.9" y="10.9" width="7.2" height="7.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+          <div style="font:400 10px 'DM Mono',monospace">Home</div>
+        </div>
+        <div onClick="{{ goSearch }}" style="flex:1;padding-top:11px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;color:{{ cSearch }}">
+          <svg width="19" height="19" viewBox="0 0 19 19"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><line x1="12.6" y1="12.6" x2="17.6" y2="17.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <div style="font:400 10px 'DM Mono',monospace">Search</div>
+        </div>
+        <div onClick="{{ goLibrary }}" style="flex:1;padding-top:11px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;color:{{ cLibrary }}">
+          <svg width="19" height="19" viewBox="0 0 19 19"><rect x="1" y="2" width="16" height="1.9" rx="0.9" fill="currentColor"/><rect x="1" y="7.5" width="16" height="1.9" rx="0.9" fill="currentColor"/><rect x="1" y="13" width="10" height="1.9" rx="0.9" fill="currentColor"/></svg>
+          <div style="font:400 10px 'DM Mono',monospace">Playlists</div>
+        </div>
+        <div onClick="{{ goDevices }}" style="flex:1;padding-top:11px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;color:{{ cDevices }}">
+          <svg width="19" height="19" viewBox="0 0 19 19"><rect x="2.9" y="0.9" width="13.2" height="17.2" rx="2.8" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9.5" cy="12" r="3.3" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9.5" cy="5" r="1.3" fill="currentColor"/></svg>
+          <div style="font:400 10px 'DM Mono',monospace">Output</div>
+        </div>
+      </div>
+
+      <!-- ── NOW PLAYING OVERLAY ───────────────────────────── -->
+      <sc-if value="{{ showNowPlaying }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;z-index:15;background:#100E0B;animation:sheetUp .32s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding:58px 22px 34px;box-sizing:border-box">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:26px">
+            <div onClick="{{ closeOverlay }}" style="cursor:pointer;width:34px;height:34px;border-radius:99px;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center">
+              <svg width="14" height="9" viewBox="0 0 14 9"><path d="M1 1l6 6.5L13 1" fill="none" stroke="#F2EFE8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div style="font:400 11px 'DM Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#8B8478">Sunday Drive</div>
+            <div style="width:34px"></div>
+          </div>
+
+          <div style="width:100%;aspect-ratio:1;border-radius:16px;background:{{ nowArt }};display:flex;align-items:flex-end;justify-content:center;padding-bottom:14px;box-sizing:border-box;margin-bottom:28px">
+            <div style="font:400 9px 'DM Mono',monospace;letter-spacing:.18em;color:rgba(255,255,255,0.42)">ALBUM ART</div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:22px">
+            <div style="min-width:0">
+              <div style="font:600 23px/1.15 'Outfit',sans-serif;letter-spacing:-0.3px;margin-bottom:7px">{{ nowTitle }}</div>
+              <div style="font:400 14px/1.3 'Outfit',sans-serif;color:#8B8478">{{ nowArtist }}</div>
+            </div>
+            <div style="flex:0 0 auto;padding:6px 11px;border-radius:99px;border:1px solid rgba(201,162,39,0.35);font:400 10px 'DM Mono',monospace;color:#D9BC63;white-space:nowrap">{{ nowSource }}</div>
+          </div>
+
+          <div style="margin-bottom:6px">
+            <div style="height:4px;border-radius:99px;background:rgba(255,255,255,0.12);overflow:hidden">
+              <div style="height:4px;border-radius:99px;background:var(--ac,#C9A227);width:{{ progressPct }}"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:8px;font:400 10px 'DM Mono',monospace;color:#6F6A61">
+              <div>{{ elapsed }}</div>
+              <div>{{ remaining }}</div>
+            </div>
+          </div>
+
+          <div style="flex:1"></div>
+
+          <div style="display:flex;align-items:center;justify-content:center;gap:28px;margin-bottom:26px">
+            <div onClick="{{ prevTrack }}" style="cursor:pointer;padding:8px">
+              <svg width="20" height="16" viewBox="0 0 20 16"><rect x="0" y="0" width="2.6" height="16" rx="1" fill="#B5AE9F"/><polygon points="19,0 19,16 5,8" fill="#B5AE9F"/></svg>
+            </div>
+            <div onClick="{{ togglePlay }}" style="cursor:pointer;width:70px;height:70px;border-radius:99px;background:var(--ac,#C9A227);display:flex;align-items:center;justify-content:center" style-hover="filter:brightness(1.08)">
+              <sc-if value="{{ playing }}" hint-placeholder-val="{{ true }}">
+                <svg width="17" height="21" viewBox="0 0 17 21"><rect x="0" y="0" width="6" height="21" rx="1.6" fill="#17150E"/><rect x="11" y="0" width="6" height="21" rx="1.6" fill="#17150E"/></svg>
+              </sc-if>
+              <sc-if value="{{ paused }}" hint-placeholder-val="{{ false }}">
+                <svg width="19" height="22" viewBox="0 0 19 22"><polygon points="0,0 19,11 0,22" fill="#17150E"/></svg>
+              </sc-if>
+            </div>
+            <div onClick="{{ nextTrack }}" style="cursor:pointer;padding:8px">
+              <svg width="20" height="16" viewBox="0 0 20 16"><polygon points="1,0 1,16 15,8" fill="#B5AE9F"/><rect x="17.4" y="0" width="2.6" height="16" rx="1" fill="#B5AE9F"/></svg>
+            </div>
+          </div>
+
+          <div onClick="{{ openOutput }}" style="cursor:pointer;height:52px;border-radius:99px;background:#1D1B15;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:space-between;padding:0 18px" style-hover="border-color:rgba(201,162,39,0.45)">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:7px;height:7px;border-radius:99px;background:var(--ac,#C9A227)"></div>
+              <div style="font:500 14px 'Outfit',sans-serif">{{ outputLabel }}</div>
+            </div>
+            <div style="font:400 11px 'DM Mono',monospace;color:#8B8478">Change</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ── OUTPUT SHEET ──────────────────────────────────── -->
+      <sc-if value="{{ showOutput }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;z-index:16;display:flex;flex-direction:column;justify-content:flex-end">
+          <div onClick="{{ closeOverlay }}" style="position:absolute;inset:0;background:rgba(0,0,0,0.6);animation:fadeIn .2s ease"></div>
+          <div style="position:relative;background:#16150F;border-top:1px solid rgba(255,255,255,0.1);border-radius:22px 22px 0 0;padding:14px 20px 32px;max-height:76%;overflow:auto;animation:sheetUp .3s cubic-bezier(.2,.8,.2,1)">
+            <div style="width:38px;height:4px;border-radius:99px;background:rgba(255,255,255,0.18);margin:0 auto 18px"></div>
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px">
+              <div style="font:600 19px 'Outfit',sans-serif">Play to</div>
+              <div onClick="{{ groupAll }}" style="cursor:pointer;font:400 11px 'DM Mono',monospace;color:var(--ac,#C9A227)">Everywhere</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+              <sc-for list="{{ rooms }}" as="r" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:#1D1B15;border:1px solid {{ r.border }}">
+                  <div onClick="{{ r.pick }}" style="cursor:pointer;width:20px;height:20px;border-radius:99px;border:1.5px solid {{ r.dotBorder }};background:{{ r.dotFill }};flex:0 0 auto"></div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font:500 14px/1.2 'Outfit',sans-serif">{{ r.name }}</div>
+                    <div style="font:400 10px/1.4 'DM Mono',monospace;color:#8B8478;margin-top:3px">{{ r.gear }}</div>
+                  </div>
+                  <div onClick="{{ r.toggle }}" style="cursor:pointer;padding:6px 11px;border-radius:99px;border:1px solid {{ r.chipBorder }};font:400 10px 'DM Mono',monospace;color:{{ r.chipColor }};flex:0 0 auto">{{ r.chipLabel }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="font:500 11px/1 'DM Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#8B8478;margin-bottom:10px">Nearby</div>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ nearby }}" as="d" hint-placeholder-count="4">
+                <div onClick="{{ d.pick }}" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid rgba(255,255,255,0.06);opacity:{{ d.opacity }}">
+                  <div style="width:20px;height:20px;border-radius:99px;border:1.5px solid {{ d.dotBorder }};background:{{ d.dotFill }};flex:0 0 auto"></div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font:500 14px/1.2 'Outfit',sans-serif">{{ d.name }}</div>
+                    <div style="font:400 10px/1.4 'DM Mono',monospace;color:#8B8478;margin-top:3px">{{ d.kind }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08)">
+              <div style="font:400 10px 'DM Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#8B8478;white-space:nowrap">All vol</div>
+              <input type="range" min="0" max="100" value="{{ masterVol }}" onChange="{{ onMasterVol }}" style="flex:1;height:18px" />
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ── AUTH / LOGIN FLOW ─────────────────────────────── -->
+      <sc-if value="{{ showAuth }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;z-index:17;display:flex;flex-direction:column;justify-content:flex-end">
+          <div onClick="{{ cancelAuth }}" style="position:absolute;inset:0;background:rgba(0,0,0,0.68);animation:fadeIn .2s ease"></div>
+          <div style="position:relative;background:#16150F;border-top:1px solid rgba(255,255,255,0.1);border-radius:22px 22px 0 0;padding:14px 22px 34px;max-height:86%;overflow:auto;animation:sheetUp .3s cubic-bezier(.2,.8,.2,1)">
+            <div style="width:38px;height:4px;border-radius:99px;background:rgba(255,255,255,0.18);margin:0 auto 20px"></div>
+
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+              <div style="width:38px;height:38px;border-radius:99px;background:#242119;display:flex;align-items:center;justify-content:center;font:500 15px 'DM Mono',monospace;color:#D9BC63;flex:0 0 auto">{{ authMono }}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font:600 17px/1.2 'Outfit',sans-serif">{{ authName }}</div>
+                <div style="font:400 10px/1.4 'DM Mono',monospace;color:#8B8478;margin-top:4px">secure sign-in · crossfade.app</div>
+              </div>
+              <div onClick="{{ cancelAuth }}" style="cursor:pointer;width:30px;height:30px;border-radius:99px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font:400 15px 'Outfit',sans-serif;color:#B5AE9F;flex:0 0 auto">×</div>
+            </div>
+
+            <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font:400 13px/1.5 'Outfit',sans-serif;color:#7E786E;margin-bottom:18px">Log in with your {{ authName }} account to continue.</div>
+                <div style="font:400 10px/1 'DM Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#8B8478;margin-bottom:8px">Email</div>
+                <input value="{{ authEmail }}" onChange="{{ onAuthEmail }}" placeholder="you@example.com" style="width:100%;box-sizing:border-box;height:46px;padding:0 14px;margin-bottom:14px;border-radius:11px;background:#1F1D17;border:1px solid rgba(255,255,255,0.1);color:#F2EFE8;font:400 15px 'Outfit',sans-serif;outline:none" />
+                <div style="font:400 10px/1 'DM Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#8B8478;margin-bottom:8px">Password</div>
+                <input type="password" value="{{ authPass }}" onChange="{{ onAuthPass }}" placeholder="••••••••" style="width:100%;box-sizing:border-box;height:46px;padding:0 14px;border-radius:11px;background:#1F1D17;border:1px solid rgba(255,255,255,0.1);color:#F2EFE8;font:400 15px 'Outfit',sans-serif;outline:none" />
+                <sc-if value="{{ hasAuthErr }}" hint-placeholder-val="{{ false }}">
+                  <div style="font:400 11px/1.5 'DM Mono',monospace;color:#E0894F;margin-top:10px">{{ authErr }}</div>
+                </sc-if>
+                <div onClick="{{ submitLogin }}" style="cursor:pointer;margin-top:20px;height:50px;border-radius:99px;background:var(--ac,#C9A227);display:flex;align-items:center;justify-content:center;color:#17150E;font:600 15px 'Outfit',sans-serif" style-hover="filter:brightness(1.08)">Log in</div>
+                <div style="font:400 11px/1.6 'DM Mono',monospace;color:#5F5B54;margin-top:14px;text-align:center">You'll be returned to Crossfade automatically.</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isConsent }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font:500 16px/1.35 'Outfit',sans-serif;margin-bottom:16px">Crossfade wants access to your {{ authName }} account</div>
+                <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:22px">
+                  <sc-for list="{{ authScopes }}" as="sc" hint-placeholder-count="3">
+                    <div style="display:flex;gap:10px;align-items:flex-start">
+                      <div style="font:400 12px 'DM Mono',monospace;color:var(--ac,#C9A227);line-height:1.5">✓</div>
+                      <div style="font:400 13px/1.5 'Outfit',sans-serif;color:#C8C1B4">{{ sc.text }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div onClick="{{ allowAccess }}" style="cursor:pointer;height:50px;border-radius:99px;background:var(--ac,#C9A227);display:flex;align-items:center;justify-content:center;color:#17150E;font:600 15px 'Outfit',sans-serif" style-hover="filter:brightness(1.08)">Allow access</div>
+                <div onClick="{{ cancelAuth }}" style="cursor:pointer;height:44px;display:flex;align-items:center;justify-content:center;color:#8B8478;font:400 13px 'Outfit',sans-serif">Not now</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isLinking }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:4px 0 8px">
+                <div style="font:500 16px/1.3 'Outfit',sans-serif;margin-bottom:18px">Linking {{ authName }}</div>
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <sc-for list="{{ linkSteps }}" as="ls" hint-placeholder-count="4">
+                    <div style="display:flex;gap:11px;align-items:center">
+                      <div style="width:14px;font:400 12px 'DM Mono',monospace;color:var(--ac,#C9A227)">{{ ls.mark }}</div>
+                      <div style="font:400 13px/1.4 'Outfit',sans-serif;color:{{ ls.color }}">{{ ls.text }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font:600 19px/1.3 'Outfit',sans-serif;margin-bottom:8px">{{ authName }} is linked</div>
+                <div style="font:400 12px/1.6 'DM Mono',monospace;color:#8B8478;margin-bottom:22px">{{ authStats }}<br>Now searchable and available in every playlist.</div>
+                <div onClick="{{ finishAuth }}" style="cursor:pointer;height:50px;border-radius:99px;background:var(--ac,#C9A227);display:flex;align-items:center;justify-content:center;color:#17150E;font:600 15px 'Outfit',sans-serif" style-hover="filter:brightness(1.08)">Done</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isManage }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font:400 12px/1.6 'DM Mono',monospace;color:#8B8478;margin-bottom:18px">{{ authStats }}<br>Token active · last synced 4 min ago</div>
+                <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:22px">
+                  <sc-for list="{{ authScopes }}" as="sc" hint-placeholder-count="3">
+                    <div style="display:flex;gap:10px;align-items:flex-start">
+                      <div style="font:400 12px 'DM Mono',monospace;color:var(--ac,#C9A227);line-height:1.5">✓</div>
+                      <div style="font:400 13px/1.5 'Outfit',sans-serif;color:#C8C1B4">{{ sc.text }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div onClick="{{ disconnect }}" style="cursor:pointer;height:50px;border-radius:99px;border:1px solid rgba(224,137,79,0.45);display:flex;align-items:center;justify-content:center;color:#E0894F;font:500 14px 'Outfit',sans-serif" style-hover="background:rgba(224,137,79,0.08)">Disconnect {{ authName }}</div>
+                <div onClick="{{ cancelAuth }}" style="cursor:pointer;height:44px;display:flex;align-items:center;justify-content:center;color:#8B8478;font:400 13px 'Outfit',sans-serif">Keep connected</div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ── TOAST ─────────────────────────────────────────── -->
+      <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;left:20px;right:20px;bottom:104px;z-index:18;padding:13px 16px;border-radius:12px;background:#2A2620;border:1px solid rgba(201,162,39,0.35);font:400 12px 'DM Mono',monospace;color:#E6DFCF;animation:toastIn .24s ease;text-align:center">{{ toast }}</div>
+      </sc-if>
+
+    </div>
+  </x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#C9A227&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#C9A227&quot;,&quot;#3F6FE8&quot;,&quot;#1F9E6E&quot;,&quot;#D6552B&quot;]},&quot;showSourceBadges&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behavior&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'home', overlay: null, playing: true, query: '',
+    output: 'living', grouped: ['living', 'kitchen'],
+    vol: { living: 38, kitchen: 24, studio: 52, bath: 61, airpods: 70, sony: 55, tv: 40, car: 30 },
+    master: 38, toast: null, nowIndex: 1,
+    connections: { spotify: true, apple: true, ytm: true, shazam: true, bbc: false, amazon: false },
+    authSvc: null, authStage: null, authEmail: '', authPass: '', authErr: null, authStep: 0,
+  };
+
+  scopeMap = {
+    read: 'Read your library, playlists and saved songs',
+    write: 'Create and edit playlists on your account',
+    play: 'Control playback on this account',
+    profile: 'Your display name and account country',
+  };
+
+  art(h, l) {
+    const a = `oklch(${l} 0.06 ${h})`, b = `oklch(${(l - 0.14).toFixed(2)} 0.05 ${h})`;
+    return `repeating-linear-gradient(135deg, ${a} 0 8px, ${b} 8px 16px)`;
+  }
+
+  svc = {
+    spotify: { mono: 'S', name: 'Spotify', auth: 'password', scopes: ['read', 'write', 'play', 'profile'], stats: '3,412 songs · 28 playlists' },
+    apple: { mono: 'A', name: 'Apple Music', auth: 'device', scopes: ['read', 'write', 'play'], stats: '1,908 songs · 14 playlists' },
+    ytm: { mono: 'Y', name: 'YouTube Music', auth: 'password', scopes: ['read', 'write', 'play', 'profile'], stats: '640 songs · 9 playlists' },
+    shazam: { mono: 'Z', name: 'Shazam', auth: 'password', scopes: ['read'], stats: '212 identified tracks' },
+    bbc: { mono: 'B', name: 'BBC Sounds', auth: 'password', scopes: ['read', 'play'], stats: '46 saved shows' },
+    amazon: { mono: 'M', name: 'Amazon Music', auth: 'password', scopes: ['read', 'write', 'play'], stats: '870 songs · 6 playlists' },
+  };
+
+  library = [
+    { title: 'Nightcall', artist: 'Kavinsky', dur: '4:18', sources: ['apple', 'ytm'], src: 'apple', h: 265, l: 0.46 },
+    { title: 'Teardrop', artist: 'Massive Attack', dur: '5:29', sources: ['spotify', 'apple', 'ytm'], src: 'spotify', h: 180, l: 0.42 },
+    { title: 'Weightless', artist: 'Marconi Union', dur: '8:08', sources: ['spotify', 'bbc'], src: 'bbc', h: 210, l: 0.5 },
+    { title: 'Sun', artist: 'Caribou', dur: '5:56', sources: ['apple', 'amazon'], src: 'apple', h: 55, l: 0.52 },
+    { title: 'Windowlicker', artist: 'Aphex Twin', dur: '6:07', sources: ['ytm'], src: 'ytm', h: 330, l: 0.44 },
+    { title: 'Africa', artist: 'Toto', dur: '4:55', sources: ['apple', 'ytm'], src: 'ytm', h: 95, l: 0.5, gap: 'Not on Spotify — playing the YouTube Music copy' },
+    { title: 'An Ending (Ascent)', artist: 'Brian Eno', dur: '4:24', sources: ['bbc', 'apple'], src: 'bbc', h: 140, l: 0.48 },
+    { title: 'Midnight City', artist: 'M83', dur: '4:03', sources: ['spotify', 'apple', 'amazon'], src: 'spotify', h: 300, l: 0.46 },
+  ];
+
+  playlistDefs = [
+    { name: 'Sunday Drive', meta: '14 tracks · 4 services', h: 40, l: 0.5, mix: [['spotify', 5], ['apple', 4], ['ytm', 3], ['bbc', 2]] },
+    { name: 'Kitchen Radio', meta: '32 tracks · BBC + Apple', h: 150, l: 0.44, mix: [['bbc', 7], ['apple', 4]] },
+    { name: 'Shazam Catch-all', meta: '61 tracks · auto-added', h: 250, l: 0.42, mix: [['shazam', 6], ['spotify', 3], ['ytm', 2]] },
+    { name: 'Deep Focus', meta: '9 tracks · 47 min', h: 90, l: 0.46, mix: [['spotify', 6], ['amazon', 3]] },
+  ];
+
+  roomDefs = [
+    { id: 'living', name: 'Living Room', gear: 'Soundbar + sub', now: 'playing' },
+    { id: 'kitchen', name: 'Kitchen', gear: 'Compact speaker', now: 'grouped' },
+    { id: 'studio', name: 'Studio', gear: 'Stereo pair', now: 'idle' },
+    { id: 'bath', name: 'Bathroom', gear: 'Portable', now: 'idle · 41%' },
+  ];
+
+  nearbyDefs = [
+    { id: 'airpods', name: 'AirPods Pro', kind: 'Bluetooth · connected' },
+    { id: 'sony', name: 'Sony WH-1000XM5', kind: 'Bluetooth · paired' },
+    { id: 'tv', name: 'Living Room TV', kind: 'AirPlay 2' },
+    { id: 'car', name: 'Car', kind: 'CarPlay · out of range', off: true },
+  ];
+
+  componentDidMount() { this.syncAccent(); }
+  componentDidUpdate() { this.syncAccent(); }
+  syncAccent() {
+    const ac = this.props.accent;
+    if (ac) document.documentElement.style.setProperty('--ac', ac);
+  }
+
+  go = (screen) => this.setState({ screen, overlay: null });
+
+  startAuth = (id) => this.setState({ authSvc: id, authStage: 'login', authEmail: '', authPass: '', authErr: null, authStep: 0 });
+  manageAuth = (id) => this.setState({ authSvc: id, authStage: 'manage', authErr: null });
+  cancelAuth = () => { clearInterval(this._link); this.setState({ authSvc: null, authStage: null, authErr: null }); };
+
+  submitLogin = () => {
+    const { authEmail, authPass } = this.state;
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(authEmail.trim())) return this.setState({ authErr: 'Enter the email on your account.' });
+    if (authPass.length < 4) return this.setState({ authErr: 'Password must be at least 4 characters.' });
+    this.setState({ authErr: null, authStage: 'consent' });
+  };
+
+  allowAccess = () => {
+    this.setState({ authStage: 'linking', authStep: 0 });
+    clearInterval(this._link);
+    this._link = setInterval(() => this.setState(s => {
+      if (s.authStep >= 3) { clearInterval(this._link); return { authStage: 'done' }; }
+      return { authStep: s.authStep + 1 };
+    }), 620);
+  };
+
+  finishAuth = () => {
+    const id = this.state.authSvc;
+    this.setState(s => ({
+      connections: Object.assign({}, s.connections, { [id]: true }),
+      authSvc: null, authStage: null, authEmail: '', authPass: '',
+    }));
+    this.flash(this.svc[id].name + ' linked · library merged');
+  };
+
+  disconnect = () => {
+    const id = this.state.authSvc;
+    this.setState(s => ({
+      connections: Object.assign({}, s.connections, { [id]: false }),
+      authSvc: null, authStage: null,
+    }));
+    this.flash(this.svc[id].name + ' disconnected · access revoked');
+  };
+  flash = (toast) => {
+    this.setState({ toast });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: null }), 1900);
+  };
+
+  pick = (id) => this.setState({ output: id, grouped: [id] });
+  toggleRoom = (id) => this.setState(s => {
+    const on = s.grouped.includes(id);
+    let g = on ? s.grouped.filter(x => x !== id) : s.grouped.concat(id);
+    if (!g.length) g = [id];
+    return { grouped: g, output: g.includes(s.output) ? s.output : g[0] };
+  });
+
+  label(ids) {
+    const names = ids.map(id => (this.roomDefs.concat(this.nearbyDefs).find(r => r.id === id) || {}).name).filter(Boolean);
+    if (!names.length) return 'Nothing selected';
+    if (names.length === 1) return names[0];
+    return names[0] + ' + ' + (names.length - 1);
+  }
+
+  renderVals() {
+    const st = this.state;
+    const badges = this.props.showSourceBadges !== false;
+    const gold = 'var(--ac,#C9A227)';
+    const now = this.library[st.nowIndex];
+    const sel = st.grouped;
+
+    const ids = ['spotify', 'apple', 'ytm', 'shazam', 'bbc', 'amazon'];
+    const linked = st.connections;
+    const services = ids.map(id => {
+      const on = !!linked[id];
+      return {
+        mono: this.svc[id].mono, name: this.svc[id].name,
+        status: on ? 'linked' : 'connect',
+        border: on ? 'rgba(255,255,255,0.07)' : 'rgba(201,162,39,0.4)',
+        monoColor: on ? '#8B8478' : '#D9BC63',
+        tap: () => (on ? this.manageAuth(id) : this.startAuth(id)),
+      };
+    });
+
+    const serviceRows = ids.map(id => {
+      const on = !!linked[id];
+      return {
+        mono: this.svc[id].mono, name: this.svc[id].name,
+        detail: on ? this.svc[id].stats : 'Not linked',
+        detailColor: on ? '#8B8478' : '#6F6A61',
+        btnLabel: on ? 'Manage' : 'Connect',
+        btnBg: on ? 'transparent' : 'var(--ac,#C9A227)',
+        btnColor: on ? '#B5AE9F' : '#17150E',
+        btnBorder: on ? 'rgba(255,255,255,0.14)' : 'var(--ac,#C9A227)',
+        dot: on ? 'var(--ac,#C9A227)' : 'rgba(255,255,255,0.16)',
+        tap: () => (on ? this.manageAuth(id) : this.startAuth(id)),
+      };
+    });
+    const linkedCount = ids.filter(id => linked[id]).length;
+
+    const playlists = this.playlistDefs.map(p => {
+      const total = p.mix.reduce((a, m) => a + m[1], 0);
+      return {
+        name: p.name, meta: p.meta, art: this.art(p.h, p.l),
+        open: () => this.setState({ screen: 'playlist', overlay: null }),
+        mix: p.mix.map(m => ({ share: m[1] / total, color: m[0] === 'bbc' || m[0] === 'shazam' ? gold : 'rgba(255,255,255,0.22)' })),
+      };
+    });
+
+    const tracks = this.library.map((t, i) => {
+      const play = linked[t.src] ? t.src : t.sources.find(s => linked[s]);
+      let gap = null;
+      if (!play) gap = 'No linked source · connect ' + this.svc[t.sources[0]].name;
+      else if (play !== t.src) gap = this.svc[t.src].name + ' unlinked · playing via ' + this.svc[play].name;
+      else if (t.gap) gap = t.gap;
+      return {
+        n: String(i + 1).padStart(2, '0'), title: t.title, artist: t.artist, dur: t.dur,
+        art: this.art(t.h, t.l), src: play ? this.svc[play].mono : '–', gap,
+        sources: t.sources.map(s => this.svc[s].mono),
+        add: (e) => {
+          if (e) e.stopPropagation();
+          if (!play) { this.startAuth(t.sources[0]); return; }
+          this.flash('Added to Sunday Drive · via ' + this.svc[play].name);
+        },
+      };
+    });
+
+    const q = st.query.trim().toLowerCase();
+    const results = q ? tracks.filter(t => (t.title + ' ' + t.artist).toLowerCase().includes(q)) : [];
+
+    const rooms = this.roomDefs.map(r => {
+      const inGroup = sel.includes(r.id);
+      const primary = st.output === r.id;
+      return {
+        name: r.name, gear: r.gear, now: inGroup ? (primary ? 'playing' : 'grouped') : r.now,
+        vol: st.vol[r.id],
+        border: inGroup ? 'rgba(201,162,39,0.38)' : 'rgba(255,255,255,0.07)',
+        dotBorder: inGroup ? gold : 'rgba(255,255,255,0.25)',
+        dotFill: inGroup ? gold : 'transparent',
+        chipLabel: inGroup ? (sel.length > 1 ? 'grouped' : 'playing') : 'add',
+        chipBorder: inGroup ? 'rgba(201,162,39,0.4)' : 'rgba(255,255,255,0.14)',
+        chipColor: inGroup ? '#D9BC63' : '#8B8478',
+        pick: () => this.pick(r.id),
+        toggle: (e) => { if (e) e.stopPropagation(); this.toggleRoom(r.id); },
+        onVol: (e) => { const v = +e.target.value; this.setState(s => ({ vol: Object.assign({}, s.vol, { [r.id]: v }) })); },
+      };
+    });
+
+    const nearby = this.nearbyDefs.map(d => {
+      const on = sel.includes(d.id);
+      return {
+        name: d.name, kind: d.kind, opacity: d.off ? 0.4 : 1,
+        dotBorder: on ? gold : 'rgba(255,255,255,0.25)',
+        dotFill: on ? gold : 'transparent',
+        pick: () => { if (d.off) { this.flash(d.name + ' is out of range'); return; } this.pick(d.id); },
+      };
+    });
+
+    return {
+      isHome: st.screen === 'home', isSearch: st.screen === 'search',
+      isLibrary: st.screen === 'library', isPlaylist: st.screen === 'playlist',
+      isDevices: st.screen === 'devices', isServices: st.screen === 'services',
+      goServices: () => this.go('services'),
+      serviceRows, linkedCount,
+      linkedSummary: linkedCount + ' of 6 linked · ' + (6 - linkedCount) + ' available',
+
+      showAuth: !!st.authStage,
+      authName: st.authSvc ? this.svc[st.authSvc].name : '',
+      authMono: st.authSvc ? this.svc[st.authSvc].mono : '',
+      authStats: st.authSvc ? this.svc[st.authSvc].stats : '',
+      isLogin: st.authStage === 'login', isConsent: st.authStage === 'consent',
+      isLinking: st.authStage === 'linking', isDone: st.authStage === 'done',
+      isManage: st.authStage === 'manage',
+      authEmail: st.authEmail, authPass: st.authPass, authErr: st.authErr,
+      hasAuthErr: !!st.authErr,
+      onAuthEmail: (e) => this.setState({ authEmail: e.target.value, authErr: null }),
+      onAuthPass: (e) => this.setState({ authPass: e.target.value, authErr: null }),
+      submitLogin: this.submitLogin, allowAccess: this.allowAccess,
+      cancelAuth: this.cancelAuth, finishAuth: this.finishAuth, disconnect: this.disconnect,
+      authScopes: st.authSvc ? this.svc[st.authSvc].scopes.map(k => ({ text: this.scopeMap[k] })) : [],
+      linkSteps: ['Authorising account', 'Reading library', 'Matching tracks across services', 'Merging playlists']
+        .map((text, i) => ({
+          text,
+          color: i < st.authStep ? '#B5AE9F' : (i === st.authStep ? '#F2EFE8' : '#5F5B54'),
+          mark: i < st.authStep ? '✓' : (i === st.authStep ? '·' : ' '),
+        })),
+
+      cHome: st.screen === 'home' ? gold : '#6F6A61',
+      cSearch: st.screen === 'search' ? gold : '#6F6A61',
+      cLibrary: st.screen === 'library' ? gold : '#6F6A61',
+      cDevices: st.screen === 'devices' ? gold : '#6F6A61',
+      goHome: () => this.go('home'), goSearch: () => this.go('search'),
+      goLibrary: () => this.go('library'), goDevices: () => this.go('devices'),
+      newPlaylist: () => this.flash('New crossfade — pick a source to start'),
+      playPlaylist: () => { this.setState({ playing: true, nowIndex: 0 }); this.flash('Sunday Drive → ' + this.label(sel)); },
+
+      services, homePlaylists: playlists.slice(0, 4), playlists,
+      detailTracks: tracks, detailArt: this.art(40, 0.5),
+
+      query: st.query, onQuery: (e) => this.setState({ query: e.target.value }),
+      noQuery: !q, hasQuery: !!q, results, badges,
+      resultCount: results.length + ' song' + (results.length === 1 ? '' : 's') + ' across your services',
+      identified: [
+        Object.assign({}, tracks[4], { when: 'Shazam · 2h ago' }),
+        Object.assign({}, tracks[6], { when: 'Shazam · yesterday' }),
+      ],
+      suggestions: ['Kavinsky', 'Massive Attack', 'Africa', 'Eno'].map(label => ({
+        label, pick: () => this.setState({ query: label }),
+      })),
+
+      nowTitle: now.title, nowArtist: now.artist, nowArt: this.art(now.h, now.l),
+      nowSource: 'via ' + this.svc[now.src].name,
+      playing: st.playing, paused: !st.playing,
+      togglePlay: (e) => { if (e) e.stopPropagation(); this.setState(s => ({ playing: !s.playing })); },
+      prevTrack: () => this.setState(s => ({ nowIndex: (s.nowIndex + this.library.length - 1) % this.library.length })),
+      nextTrack: () => this.setState(s => ({ nowIndex: (s.nowIndex + 1) % this.library.length })),
+      progressPct: '42%', elapsed: '1:48', remaining: '-2:30',
+
+      outputLabel: this.label(sel), outputShort: this.label(sel),
+      outputGear: sel.length > 1 ? sel.length + ' rooms' : 'Soundbar + sub',
+      rooms, nearby,
+      masterVol: st.master,
+      onMasterVol: (e) => { const v = +e.target.value; this.setState({ master: v }); },
+
+      openNowPlaying: () => this.setState({ overlay: 'now' }),
+      openOutput: (e) => { if (e) e.stopPropagation(); this.setState({ overlay: 'output' }); },
+      closeOverlay: () => this.setState({ overlay: null }),
+      groupAll: (e) => { if (e) e.stopPropagation(); this.setState({ grouped: this.roomDefs.map(r => r.id), output: 'living' }); this.flash('Playing in every room'); },
+      showNowPlaying: st.overlay === 'now', showOutput: st.overlay === 'output',
+      toast: st.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>
